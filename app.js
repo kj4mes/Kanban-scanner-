@@ -71,24 +71,53 @@ function addCode(rawCode) {
   const result = findItem(code);
   if (result.item) {
     counts[result.item.id] = (counts[result.item.id] || 0) + 1;
-    els.status.textContent = `Added ${result.item.description} (${result.item.partNumber}).`;
-    els.manualCode.value = ''; saveState(); render(); if (navigator.vibrate) navigator.vibrate(60); return;
+    els.status.textContent = `Captured — added ${result.item.description} (${result.item.partNumber}).`;
+    els.manualCode.value = ''; saveState(); render(); captureFeedback(); return;
   }
-  if (result.duplicate) { els.status.textContent = `Part ${code} appears more than once. Scan its unique QR/barcode instead.`; return; }
-  els.status.textContent = `Code not recognized: ${code}. Add it under Inventory Setup.`;
+  if (result.duplicate) { els.status.textContent = `Captured ${code}, but that part number appears more than once. Scan its unique QR/barcode instead.`; captureFeedback(); return; }
+  els.status.textContent = `Captured ${code}, but it is not in inventory. Add it under Inventory Setup.`;
+  captureFeedback();
 }
 
-const scanFormats = () => [Html5QrcodeSupportedFormats.QR_CODE,Html5QrcodeSupportedFormats.CODE_128,Html5QrcodeSupportedFormats.CODE_39,Html5QrcodeSupportedFormats.UPC_A,Html5QrcodeSupportedFormats.UPC_E,Html5QrcodeSupportedFormats.EAN_13,Html5QrcodeSupportedFormats.EAN_8];
+const scanFormats = () => [
+  Html5QrcodeSupportedFormats.QR_CODE,
+  Html5QrcodeSupportedFormats.CODE_128,
+  Html5QrcodeSupportedFormats.CODE_39,
+  Html5QrcodeSupportedFormats.UPC_A,
+  Html5QrcodeSupportedFormats.UPC_E,
+  Html5QrcodeSupportedFormats.EAN_13,
+  Html5QrcodeSupportedFormats.EAN_8
+];
+
+function makeScanner(elementId) {
+  return new Html5Qrcode(elementId, { formatsToSupport: scanFormats(), verbose: false });
+}
+
+function scanConfig() {
+  return {
+    fps: 15,
+    qrbox: (viewfinderWidth, viewfinderHeight) => ({
+      width: Math.max(220, Math.floor(Math.min(viewfinderWidth * 0.92, 430))),
+      height: Math.max(90, Math.floor(Math.min(viewfinderHeight * 0.28, 130)))
+    }),
+    aspectRatio: 1.777778,
+    disableFlip: false
+  };
+}
+
+function captureFeedback() {
+  if (navigator.vibrate) navigator.vibrate([80, 35, 80]);
+}
 
 async function startScanner() {
   if (!window.Html5Qrcode) return els.status.textContent = 'Scanner library did not load. Reload while online.';
   try {
     els.reader.classList.remove('hidden'); els.startScan.disabled = true; els.stopScan.disabled = false; els.status.textContent = 'Starting camera…';
-    scanner = new Html5Qrcode('reader');
-    await scanner.start({ facingMode:'environment' }, { fps:10, qrbox:{width:250,height:180}, formatsToSupport:scanFormats() }, decodedText => {
+    scanner = makeScanner('reader');
+    await scanner.start({ facingMode:'environment' }, scanConfig(), decodedText => {
       const now=Date.now(); if(decodedText===lastScan.value && now-lastScan.time<1500)return; lastScan={value:decodedText,time:now}; addCode(decodedText);
     });
-    els.status.textContent = 'Scanner running. Point at a QR code or barcode.';
+    els.status.textContent = 'Scanner running — center the entire barcode inside the wide box.';
   } catch(err) { els.status.textContent=`Camera error: ${err}`; els.startScan.disabled=false; els.stopScan.disabled=true; els.reader.classList.add('hidden'); scanner=null; }
 }
 
@@ -98,20 +127,22 @@ async function startInventoryScanner() {
   if (!window.Html5Qrcode) return els.inventoryStatus.textContent='Scanner library did not load. Reload while online.';
   try {
     els.inventoryReader.classList.remove('hidden'); els.inventoryScan.disabled=true; els.inventoryStop.disabled=false; els.inventoryStatus.textContent='Starting camera…';
-    inventoryScanner = new Html5Qrcode('inventory-reader');
-    await inventoryScanner.start({ facingMode:'environment' }, { fps:10, qrbox:{width:250,height:180}, formatsToSupport:scanFormats() }, async decodedText => {
+    inventoryScanner = makeScanner('inventory-reader');
+    await inventoryScanner.start({ facingMode:'environment' }, scanConfig(), async decodedText => {
       const code=normalize(decodedText); const now=Date.now(); if(code===lastScan.value && now-lastScan.time<1500)return; lastScan={value:code,time:now};
+      els.inventoryStatus.textContent=`Barcode captured: ${code}`;
+      captureFeedback();
       const existing=findItem(code);
-      if(existing.item){ els.inventoryStatus.textContent=`Already in inventory: ${existing.item.partNumber} — ${existing.item.description}`; if(navigator.vibrate)navigator.vibrate([50,40,50]); return; }
-      await stopInventoryScanner(false); openNewItemForm(code); if(navigator.vibrate)navigator.vibrate(80);
+      if(existing.item){ els.inventoryStatus.textContent=`Captured ${code} — already in inventory: ${existing.item.partNumber} — ${existing.item.description}`; return; }
+      await stopInventoryScanner(false); openNewItemForm(code);
     });
-    els.inventoryStatus.textContent='Scan the manufacturer barcode on the item.';
+    els.inventoryStatus.textContent='Scanner running — center the full manufacturer barcode inside the wide box.';
   } catch(err) { els.inventoryStatus.textContent=`Camera error: ${err}`; els.inventoryScan.disabled=false; els.inventoryStop.disabled=true; els.inventoryReader.classList.add('hidden'); inventoryScanner=null; }
 }
 
 async function stopInventoryScanner(updateStatus=true) { if(inventoryScanner){try{await inventoryScanner.stop();await inventoryScanner.clear();}catch(_){} inventoryScanner=null;} els.inventoryReader.classList.add('hidden'); els.inventoryScan.disabled=false; els.inventoryStop.disabled=true; if(updateStatus)els.inventoryStatus.textContent='Scanner stopped.'; }
 
-function openNewItemForm(code) { els.newBarcode.value=code; els.newPartNumber.value=''; els.newDescription.value=''; els.newKanbanQty.value='1'; els.newCategory.value=''; els.newItemForm.classList.remove('hidden'); els.inventoryStatus.textContent=`New barcode found: ${code}. Enter the item details below.`; els.newPartNumber.focus(); }
+function openNewItemForm(code) { els.newBarcode.value=code; els.newPartNumber.value=''; els.newDescription.value=''; els.newKanbanQty.value='1'; els.newCategory.value=''; els.newItemForm.classList.remove('hidden'); els.inventoryStatus.textContent=`Barcode captured: ${code}. Enter the item details below.`; els.newPartNumber.focus(); }
 function resetNewItemForm(){ els.newItemForm.classList.add('hidden'); els.newBarcode.value=''; els.inventoryStatus.textContent='Ready to build inventory.'; }
 
 function nextLocalId(){ let n=1; const ids=new Set(customInventory.map(i=>i.id)); while(ids.has(`LOCAL${String(n).padStart(3,'0')}`))n++; return `LOCAL${String(n).padStart(3,'0')}`; }
