@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#111827" />
+  <title>Kanban Scanner</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://unpkg.com/html5-qrcode" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">HVAC Truck Stock Test Bed</p>
+        <h1>Kanban Scanner</h1>
+      </div>
+      <button id="new-job-btn" class="secondary">New Job</button>
+    </header>
+
+    <section class="card job-card">
+      <label for="job-name">Job / Work Order</label>
+      <input id="job-name" type="text" inputmode="text" placeholder="Example: WO 12345" />
+      <div class="button-row">
+        <button id="start-scan-btn" class="primary">Start Scanner</button>
+        <button id="stop-scan-btn" class="secondary" disabled>Stop</button>
+      </div>
+      <div id="reader" class="reader hidden"></div>
+      <p id="scan-status" class="status">Ready to scan.</p>
+    </section>
+
+    <section class="card">
+      <h2>Manual Entry</h2>
+      <div class="manual-entry">
+        <input id="manual-code" type="text" inputmode="numeric" placeholder="Part number or scanned code" />
+        <button id="manual-add-btn" class="primary">Add</button>
+      </div>
+      <p class="hint">Use this when a QR or barcode will not scan.</p>
+    </section>
+
+    <section class="card">
+      <div class="section-title-row">
+        <h2>Job Materials</h2>
+        <span id="item-count-badge" class="badge">0 items</span>
+      </div>
+      <div id="empty-state" class="empty-state">Nothing scanned yet.</div>
+      <div id="material-list" class="material-list"></div>
+    </section>
+
+    <section class="card">
+      <h2>Finish Job</h2>
+      <div class="button-row">
+        <button id="copy-summary-btn" class="primary">Copy Summary</button>
+        <button id="clear-job-btn" class="danger">Clear Job</button>
+      </div>
+      <textarea id="summary-output" rows="8" readonly placeholder="Your material summary will appear here."></textarea>
+    </section>
+  </main>
+</body>
+</html>
