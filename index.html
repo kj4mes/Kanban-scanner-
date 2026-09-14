@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#111827" />
   <title>Kanban Scanner</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=9" />
   <script src="https://unpkg.com/@zxing/browser@0.1.5/umd/zxing-browser.min.js" defer></script>
-  <script src="app.js?v=8" defer></script>
+  <script src="app.js?v=9" defer></script>
   <script src="scanner-zxing.js?v=8" defer></script>
 </head>
 <body>
@@ -21,8 +21,16 @@
       <section class="card"><h2>Finish Job</h2><div class="button-row"><button id="copy-summary-btn" class="primary">Copy Summary</button><button id="clear-job-btn" class="danger">Clear Job</button></div><textarea id="summary-output" rows="8" readonly placeholder="Your material summary will appear here."></textarea></section>
     </div>
     <div id="inventory-mode" class="hidden">
-      <section class="card"><h2>Add Inventory Item</h2><p class="hint inventory-intro">Scan the manufacturer's barcode. If it is new, fill in the item information and save it.</p><div class="button-row"><button id="inventory-scan-btn" class="primary">Scan New Item</button><button id="inventory-stop-btn" class="secondary" disabled>Stop</button></div><div id="inventory-reader" class="reader hidden"></div><p id="inventory-status" class="status">Ready to build inventory.</p><div id="new-item-form" class="new-item-form hidden"><label for="new-barcode">Scanned Barcode</label><input id="new-barcode" type="text" readonly /><label for="new-part-number">Part Number</label><input id="new-part-number" type="text" placeholder="Example: 306465" /><label for="new-description">Description</label><input id="new-description" type="text" placeholder='Example: 3/4&quot; Galvanized Union' /><label for="new-kanban-qty">Kanban / Restock Quantity</label><input id="new-kanban-qty" type="number" inputmode="numeric" min="0" value="1" /><label for="new-category">Category</label><input id="new-category" type="text" placeholder="Example: Galvanized Fittings" /><div class="button-row"><button id="save-item-btn" class="primary">Save Item</button><button id="cancel-item-btn" class="secondary">Cancel</button></div></div></section>
-      <section class="card"><div class="section-title-row"><h2>Inventory</h2><span id="inventory-count-badge" class="badge">0 items</span></div><input id="inventory-search" type="search" placeholder="Search part number or description" /><div id="inventory-list" class="inventory-list"></div></section>
+      <section class="card">
+        <div class="section-title-row"><h2>Truck Inventory Setup</h2><span id="custom-count-badge" class="badge">0 added</span></div>
+        <p class="hint inventory-intro">Rapid setup: scan a manufacturer's barcode, enter the FieldEdge item number and description, then tap Save & Scan Next.</p>
+        <div class="button-row"><button id="inventory-scan-btn" class="primary">Scan New Item</button><button id="manual-barcode-btn" class="secondary">Enter Barcode</button><button id="inventory-stop-btn" class="secondary" disabled>Stop</button></div>
+        <div id="manual-barcode-panel" class="manual-barcode-panel hidden"><label for="manual-new-barcode">Barcode Number</label><div class="manual-entry"><input id="manual-new-barcode" type="text" inputmode="numeric" placeholder="Type barcode digits" /><button id="use-manual-barcode-btn" class="primary">Use</button></div></div>
+        <div id="inventory-reader" class="reader hidden"></div><p id="inventory-status" class="status">Ready to build inventory.</p>
+        <div id="new-item-form" class="new-item-form hidden"><label for="new-barcode">Scanned Barcode</label><input id="new-barcode" type="text" readonly /><label for="new-part-number">FieldEdge Item Number</label><input id="new-part-number" type="text" placeholder="Example: 306465" /><label for="new-description">Description</label><input id="new-description" type="text" placeholder='Example: 3/4&quot; Galvanized Union' /><label for="new-kanban-qty">Kanban / Restock Quantity</label><input id="new-kanban-qty" type="number" inputmode="numeric" min="0" value="1" /><label for="new-category">Category</label><input id="new-category" type="text" placeholder="Example: Galvanized Fittings" /><div class="button-row"><button id="save-next-item-btn" class="primary">Save & Scan Next</button><button id="save-item-btn" class="secondary">Save</button><button id="cancel-item-btn" class="secondary">Cancel</button></div></div>
+      </section>
+      <section class="card backup-card"><h2>Backup / Transfer</h2><p class="hint">Items added on this phone are stored in Safari. Export a backup before clearing browser data or moving to another phone.</p><div class="button-row"><button id="export-json-btn" class="primary">Export Backup</button><button id="export-csv-btn" class="secondary">Export CSV</button><button id="import-btn" class="secondary">Import Backup</button></div><input id="import-file" type="file" accept="application/json,.json" class="hidden" /></section>
+      <section class="card"><div class="section-title-row"><h2>Inventory</h2><span id="inventory-count-badge" class="badge">0 items</span></div><input id="inventory-search" type="search" placeholder="Search item number, description, category, or barcode" /><div id="inventory-list" class="inventory-list"></div></section>
     </div>
   </main>
 </body>
