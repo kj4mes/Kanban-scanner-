@@ -5,21 +5,40 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#111827" />
   <title>Kanban Scanner</title>
-  <link rel="stylesheet" href="styles.css?v=9" />
+  <link rel="stylesheet" href="styles.css?v=10" />
   <script src="https://unpkg.com/@zxing/browser@0.1.5/umd/zxing-browser.min.js" defer></script>
-  <script src="app.js?v=9" defer></script>
-  <script src="scanner-zxing.js?v=8" defer></script>
+  <script src="app.js?v=10" defer></script>
+  <script src="scanner-zxing.js?v=10" defer></script>
 </head>
 <body>
   <main class="app-shell">
     <header class="app-header"><div><p class="eyebrow">HVAC Truck Stock Test Bed</p><h1>Kanban Scanner</h1></div><button id="new-job-btn" class="secondary">New Job</button></header>
-    <section class="mode-switch"><button id="job-mode-btn" class="mode-btn active">Job Scan</button><button id="inventory-mode-btn" class="mode-btn">Inventory Setup</button></section>
+    <section class="mode-switch three"><button id="job-mode-btn" class="mode-btn active">Job Scan</button><button id="count-mode-btn" class="mode-btn">Truck Count</button><button id="inventory-mode-btn" class="mode-btn">Inventory Setup</button></section>
+
     <div id="job-mode">
       <section class="card job-card"><label for="job-name">Job / Work Order</label><input id="job-name" type="text" inputmode="text" placeholder="Example: WO 12345" /><div class="button-row"><button id="start-scan-btn" class="primary">Start Scanner</button><button id="stop-scan-btn" class="secondary" disabled>Stop</button></div><div id="reader" class="reader hidden"></div><p id="scan-status" class="status">Ready to scan.</p></section>
       <section class="card"><h2>Manual Entry</h2><div class="manual-entry"><input id="manual-code" type="text" inputmode="text" placeholder="Part number or scanned code" /><button id="manual-add-btn" class="primary">Add</button></div><p class="hint">Use this when a QR or barcode will not scan.</p></section>
       <section class="card"><div class="section-title-row"><h2>Job Materials</h2><span id="item-count-badge" class="badge">0 items</span></div><div id="empty-state" class="empty-state">Nothing scanned yet.</div><div id="material-list" class="material-list"></div></section>
       <section class="card"><h2>Finish Job</h2><div class="button-row"><button id="copy-summary-btn" class="primary">Copy Summary</button><button id="clear-job-btn" class="danger">Clear Job</button></div><textarea id="summary-output" rows="8" readonly placeholder="Your material summary will appear here."></textarea></section>
     </div>
+
+    <div id="count-mode" class="hidden">
+      <section class="card">
+        <div class="section-title-row"><h2>Truck Inventory Count</h2><span id="truck-count-badge" class="badge">0 counted</span></div>
+        <p class="hint inventory-intro">Scan an item, then confirm one piece or enter the quantity you actually have on the truck.</p>
+        <div class="button-row"><button id="count-scan-btn" class="primary">Scan Item</button><button id="count-stop-btn" class="secondary" disabled>Stop</button></div>
+        <div id="count-reader" class="reader hidden"></div>
+        <p id="count-status" class="status">Ready to count truck inventory.</p>
+
+        <div id="count-confirm" class="count-confirm hidden">
+          <div class="scan-result"><div id="count-part-number" class="part-number"></div><div id="count-description" class="part-name"></div><div id="count-current" class="part-stock"></div></div>
+          <div class="button-row"><button id="count-add-one-btn" class="primary">Add 1</button><button id="count-enter-qty-btn" class="secondary">Enter Quantity</button></div>
+          <div id="count-qty-panel" class="manual-barcode-panel hidden"><label for="count-qty-input">Quantity on Truck</label><div class="manual-entry"><input id="count-qty-input" type="number" inputmode="numeric" min="0" value="1" /><button id="count-save-qty-btn" class="primary">Save Qty</button></div></div>
+        </div>
+      </section>
+      <section class="card"><div class="section-title-row"><h2>Counted Items</h2><button id="clear-truck-count-btn" class="small-btn danger">Clear Count</button></div><div id="truck-count-list" class="inventory-list"></div></section>
+    </div>
+
     <div id="inventory-mode" class="hidden">
       <section class="card">
         <div class="section-title-row"><h2>Truck Inventory Setup</h2><span id="custom-count-badge" class="badge">0 added</span></div>
