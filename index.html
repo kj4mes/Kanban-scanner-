@@ -19,43 +19,89 @@
       <button id="new-job-btn" class="secondary">New Job</button>
     </header>
 
-    <section class="card job-card">
-      <label for="job-name">Job / Work Order</label>
-      <input id="job-name" type="text" inputmode="text" placeholder="Example: WO 12345" />
-      <div class="button-row">
-        <button id="start-scan-btn" class="primary">Start Scanner</button>
-        <button id="stop-scan-btn" class="secondary" disabled>Stop</button>
-      </div>
-      <div id="reader" class="reader hidden"></div>
-      <p id="scan-status" class="status">Ready to scan.</p>
+    <section class="mode-switch">
+      <button id="job-mode-btn" class="mode-btn active">Job Scan</button>
+      <button id="inventory-mode-btn" class="mode-btn">Inventory Setup</button>
     </section>
 
-    <section class="card">
-      <h2>Manual Entry</h2>
-      <div class="manual-entry">
-        <input id="manual-code" type="text" inputmode="numeric" placeholder="Part number or scanned code" />
-        <button id="manual-add-btn" class="primary">Add</button>
-      </div>
-      <p class="hint">Use this when a QR or barcode will not scan.</p>
-    </section>
+    <div id="job-mode">
+      <section class="card job-card">
+        <label for="job-name">Job / Work Order</label>
+        <input id="job-name" type="text" inputmode="text" placeholder="Example: WO 12345" />
+        <div class="button-row">
+          <button id="start-scan-btn" class="primary">Start Scanner</button>
+          <button id="stop-scan-btn" class="secondary" disabled>Stop</button>
+        </div>
+        <div id="reader" class="reader hidden"></div>
+        <p id="scan-status" class="status">Ready to scan.</p>
+      </section>
 
-    <section class="card">
-      <div class="section-title-row">
-        <h2>Job Materials</h2>
-        <span id="item-count-badge" class="badge">0 items</span>
-      </div>
-      <div id="empty-state" class="empty-state">Nothing scanned yet.</div>
-      <div id="material-list" class="material-list"></div>
-    </section>
+      <section class="card">
+        <h2>Manual Entry</h2>
+        <div class="manual-entry">
+          <input id="manual-code" type="text" inputmode="text" placeholder="Part number or scanned code" />
+          <button id="manual-add-btn" class="primary">Add</button>
+        </div>
+        <p class="hint">Use this when a QR or barcode will not scan.</p>
+      </section>
 
-    <section class="card">
-      <h2>Finish Job</h2>
-      <div class="button-row">
-        <button id="copy-summary-btn" class="primary">Copy Summary</button>
-        <button id="clear-job-btn" class="danger">Clear Job</button>
-      </div>
-      <textarea id="summary-output" rows="8" readonly placeholder="Your material summary will appear here."></textarea>
-    </section>
+      <section class="card">
+        <div class="section-title-row">
+          <h2>Job Materials</h2>
+          <span id="item-count-badge" class="badge">0 items</span>
+        </div>
+        <div id="empty-state" class="empty-state">Nothing scanned yet.</div>
+        <div id="material-list" class="material-list"></div>
+      </section>
+
+      <section class="card">
+        <h2>Finish Job</h2>
+        <div class="button-row">
+          <button id="copy-summary-btn" class="primary">Copy Summary</button>
+          <button id="clear-job-btn" class="danger">Clear Job</button>
+        </div>
+        <textarea id="summary-output" rows="8" readonly placeholder="Your material summary will appear here."></textarea>
+      </section>
+    </div>
+
+    <div id="inventory-mode" class="hidden">
+      <section class="card">
+        <h2>Add Inventory Item</h2>
+        <p class="hint inventory-intro">Scan the manufacturer's barcode. If it is new, fill in the item information and save it.</p>
+        <div class="button-row">
+          <button id="inventory-scan-btn" class="primary">Scan New Item</button>
+          <button id="inventory-stop-btn" class="secondary" disabled>Stop</button>
+        </div>
+        <div id="inventory-reader" class="reader hidden"></div>
+        <p id="inventory-status" class="status">Ready to build inventory.</p>
+
+        <div id="new-item-form" class="new-item-form hidden">
+          <label for="new-barcode">Scanned Barcode</label>
+          <input id="new-barcode" type="text" readonly />
+          <label for="new-part-number">Part Number</label>
+          <input id="new-part-number" type="text" placeholder="Example: 306465" />
+          <label for="new-description">Description</label>
+          <input id="new-description" type="text" placeholder='Example: 3/4" Galvanized Union' />
+          <label for="new-kanban-qty">Kanban / Restock Quantity</label>
+          <input id="new-kanban-qty" type="number" inputmode="numeric" min="0" value="1" />
+          <label for="new-category">Category</label>
+          <input id="new-category" type="text" placeholder="Example: Galvanized Fittings" />
+          <div class="button-row">
+            <button id="save-item-btn" class="primary">Save Item</button>
+            <button id="cancel-item-btn" class="secondary">Cancel</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="section-title-row">
+          <h2>Inventory</h2>
+          <span id="inventory-count-badge" class="badge">0 items</span>
+        </div>
+        <input id="inventory-search" type="search" placeholder="Search part number or description" />
+        <div id="inventory-list" class="inventory-list"></div>
+      </section>
+    </div>
   </main>
 </body>
 </html>
